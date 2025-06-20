@@ -83,9 +83,12 @@ brevo_attributes = [
 
 for user in users:
     user = list(user)
+    email = user.pop(0)
+    user[3] = user[3].strftime('%Y-%m-%d')
+    user[4] = user[4].strftime('%Y-%m-%d')
     brevo_payload["jsonBody"].append(
         {
-            "email": user.pop(0),
+            "email": email,
             "attributes" : dict(zip(brevo_attributes, user))
         }
     )
