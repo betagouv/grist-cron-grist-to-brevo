@@ -14,21 +14,7 @@ brevo_headers = {
     "api-key": os.environ["BREVO_API_KEY"]
 }
 
-result = urlparse(os.environ["PG_URL"])
-username = result.username
-password = result.password
-database = result.path[1:]
-hostname = result.hostname
-port = result.port
-
-with psycopg.connect(
-    database = database,
-    user = username,
-    password = password,
-    host = hostname,
-    port = port
-) as conn:
-
+with psycopg.connect(conninfo = os.environ["PG_URL"]) as conn:
     with conn.cursor() as cur:
         cur.execute("""
             WITH raw_brevo_data AS (
