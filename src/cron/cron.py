@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 import psycopg
 import requests
 
-ID_BREVO_LIST = urlparse(os.environ["ID_BREVO_LIST"])
+ID_BREVO_LIST = int(os.environ["ID_BREVO_LIST"])
 
 brevo_url = "https://api.brevo.com/v3/contacts/import"
 
