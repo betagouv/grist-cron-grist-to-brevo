@@ -57,7 +57,7 @@ with psycopg.connect(conninfo = os.environ["PG_URL"]) as conn:
                 USER_INACTIVITY,
                 USER_SIRET;
             """)
-    users = cur.fetchall()
+        users = cur.fetchall()
 
 brevo_payload = {
                     "emailBlacklist": False,
