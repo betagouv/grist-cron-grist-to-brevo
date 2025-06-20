@@ -82,6 +82,7 @@ brevo_attributes = [
                     ]
 
 for user in users:
+    user = list(user)
     brevo_payload["jsonBody"].append(
         {
             "email": user.pop(0),
