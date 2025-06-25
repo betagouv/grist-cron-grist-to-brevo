@@ -85,7 +85,7 @@ for user in users:
     user = list(user)
     email = user.pop(0)
     user[3] = user[3].strftime('%Y-%m-%d') if user[3] is not None else user[3]
-    user[4] = user[4].strftime('%Y-%m-%d') if user[4] is not None else user[3]
+    user[4] = user[4].strftime('%Y-%m-%d') if user[4] is not None else user[4]
     brevo_payload["jsonBody"].append(
         {
             "email": email,
