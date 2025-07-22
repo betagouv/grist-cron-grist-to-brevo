@@ -1,10 +1,11 @@
 import os
-from urllib.parse import urlparse
+from datetime import date
 
 import psycopg
 import requests
 
 ID_BREVO_LIST = int(os.environ["ID_BREVO_LIST"])
+ATTRS_PREFIX = os.environ.get("BREVO_ATTRS_PREFIX", "")
 
 brevo_url = "https://api.brevo.com/v3/contacts/import"
 
@@ -73,19 +74,26 @@ brevo_attributes = [
                     "PRENOM",
                     "NOM",
                     "USER_DOMAIN",
-                    "USER_FIRST_LOGIN",
-                    "USER_LAST_LOGIN",
-                    "USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_CONNECTION",
-                    "USER_INACTIVITY",
+                    ATTRS_PREFIX + "USER_FIRST_LOGIN",
+                    ATTRS_PREFIX + "USER_LAST_LOGIN",
+                    ATTRS_PREFIX + "USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_CONNECTION",
+                    ATTRS_PREFIX + "USER_INACTIVITY",
                     "USER_SIRET",
-                    "USER_NB_DOCUMENTS"
+                    ATTRS_PREFIX + "USER_NB_DOCUMENTS"
                     ]
+
+EMAIL_ATTR_INDEX = 0
+USER_FIRST_LOGIN_INDEX = 3
+USER_LAST_LOGIN_INDEX = 4
+
+def normalize_date(value: date|None) -> str|None:
+    return value.strftime('%Y-%m-%d') if value is not None else value
 
 for user in users:
     user = list(user)
-    email = user.pop(0)
-    user[3] = user[3].strftime('%Y-%m-%d') if user[3] is not None else user[3]
-    user[4] = user[4].strftime('%Y-%m-%d') if user[4] is not None else user[4]
+    email = user.pop(EMAIL_ATTR_INDEX)
+    user[USER_FIRST_LOGIN_INDEX] = normalize_date(user[USER_FIRST_LOGIN_INDEX])
+    user[USER_LAST_LOGIN_INDEX] = normalize_date(user[USER_LAST_LOGIN_INDEX])
     brevo_payload["jsonBody"].append(
         {
             "email": email,
