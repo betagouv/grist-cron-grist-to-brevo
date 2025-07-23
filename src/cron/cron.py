@@ -26,7 +26,7 @@ with psycopg.connect(conninfo = os.environ["PG_URL"]) as conn:
                     SPLIT_PART(EMAIL, '@', 2) AS USER_DOMAIN,
                     users.first_login_at AS USER_FIRST_LOGIN,
                     users.last_connection_at AS USER_LAST_LOGIN,
-                    users.last_connection_at::date - users.first_login_at::date AS USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_CONNECTION,
+                    users.last_connection_at::date - users.first_login_at::date AS USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_LOGIN,
                     CURRENT_DATE::date - users.last_connection_at::date AS USER_INACTIVITY,
                     (users.options -> 'ssoExtraInfo' -> 'siret')::text AS USER_SIRET,
                     docs.id AS DOC_ID
@@ -42,7 +42,7 @@ with psycopg.connect(conninfo = os.environ["PG_URL"]) as conn:
                 USER_DOMAIN,
                 USER_FIRST_LOGIN,
                 USER_LAST_LOGIN,
-                USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_CONNECTION,
+                USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_LOGIN,
                 USER_INACTIVITY,
                 USER_SIRET,
                 count(DOC_ID) AS USER_NB_DOCUMENTS
@@ -54,7 +54,7 @@ with psycopg.connect(conninfo = os.environ["PG_URL"]) as conn:
                 USER_DOMAIN,
                 USER_FIRST_LOGIN,
                 USER_LAST_LOGIN,
-                USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_CONNECTION,
+                USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_LOGIN,
                 USER_INACTIVITY,
                 USER_SIRET;
             """)
@@ -76,7 +76,7 @@ brevo_attributes = [
                     "USER_DOMAIN",
                     ATTRS_PREFIX + "USER_FIRST_LOGIN",
                     ATTRS_PREFIX + "USER_LAST_LOGIN",
-                    ATTRS_PREFIX + "USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_CONNECTION",
+                    ATTRS_PREFIX + "USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_LOGIN",
                     ATTRS_PREFIX + "USER_INACTIVITY",
                     "USER_SIRET",
                     ATTRS_PREFIX + "USER_NB_DOCUMENTS"
