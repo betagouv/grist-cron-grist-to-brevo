@@ -28,7 +28,7 @@ with psycopg.connect(conninfo = os.environ["PG_URL"]) as conn:
                     users.last_connection_at AS USER_LAST_LOGIN,
                     users.last_connection_at::date - users.first_login_at::date AS USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_LOGIN,
                     CURRENT_DATE::date - users.last_connection_at::date AS USER_INACTIVITY,
-                    (users.options -> 'ssoExtraInfo' -> 'siret')::text AS USER_SIRET,
+                    users.options -> 'ssoExtraInfo' ->> 'siret' AS USER_SIRET,
                     docs.id AS DOC_ID
                 FROM 
                     users LEFT JOIN
