@@ -4,7 +4,7 @@ from datetime import date
 import psycopg
 import requests
 
-ID_BREVO_LIST = int(os.environ["ID_BREVO_LIST"])
+ID_BREVO_LIST = [int(id) for id in os.environ["ID_BREVO_LIST"].split(',')]
 ATTRS_PREFIX = os.environ.get("BREVO_ATTRS_PREFIX", "")
 
 brevo_url = "https://api.brevo.com/v3/contacts/import"
@@ -67,7 +67,7 @@ brevo_payload = {
                     "updateExistingContacts": True,
                     "emptyContactsAttributes": False,
                     "jsonBody":[],
-                    "listIds": [ ID_BREVO_LIST ]
+                    "listIds": ID_BREVO_LIST,
                 }
 
 brevo_attributes = [
