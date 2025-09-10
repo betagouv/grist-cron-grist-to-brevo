@@ -9,7 +9,7 @@ import requests
 ID_BREVO_LIST = [int(id) for id in os.environ["ID_BREVO_LIST"].split(',')]
 # Event lists that the user can unsuscribe from
 # And we want to enroll him/her only once.
-ID_BREVO_OPTIONNAL_LIST = [int(id) for id in os.environ["ID_BREVO_OPTIONNAL_LIST"].split(',')]
+ID_BREVO_OPTIONAL_LIST = [int(id) for id in os.environ["ID_BREVO_OPTIONNAL_LIST"].split(',')]
 ATTRS_PREFIX = os.environ.get("BREVO_ATTRS_PREFIX", "")
 
 brevo_url = "https://api.brevo.com/v3/contacts/import"
@@ -76,7 +76,7 @@ brevo_payload = {
                 }
 
 brevo_new_users_payload = brevo_payload.copy()
-brevo_new_users_payload["listIds"] = ID_BREVO_OPTIONNAL_LIST
+brevo_new_users_payload["listIds"] = ID_BREVO_OPTIONAL_LIST
 
 brevo_attributes = [
                     "PRENOM",
@@ -99,7 +99,7 @@ for user in users:
     user.pop("email")
     user["user_first_login"] = normalize_date(user["user_first_login"])
     user["user_last_login"] = normalize_date(user["user_last_login"])
-    # We enroll users only when they are added to the instance
+    # We enroll users only when they have just been registered to the instance
     if user["user_nb_days_between_first_and_last_login"] == 0:
         brevo_new_users_payload["jsonBody"].append(
             {
@@ -115,10 +115,10 @@ for user in users:
     )
 
 # Update or create users in brevo
-# Add them to default "technical" list which they can't unsubscribe
+# Add them to default "technical" lists which they can't unsubscribe
 # TODO remove them from BREVO when they are soft deleted from Grist
 response = requests.post(brevo_url, json=brevo_payload, headers=brevo_headers)
 print(response.text)
-# Add new users to optional lists they can unsuscribe latter
+# Add new users to optional lists they can unsubscribe later
 response_new_users = requests.post(brevo_url, json=brevo_new_users_payload, headers=brevo_headers)
 print(response_new_users.text)
