@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import date
 
 import psycopg
@@ -6,6 +7,7 @@ import requests
 
 ID_BREVO_LIST = [int(id) for id in os.environ["ID_BREVO_LIST"].split(',')]
 ATTRS_PREFIX = os.environ.get("BREVO_ATTRS_PREFIX", "")
+MAX_BATCH_SIZE = 5000
 
 brevo_url = "https://api.brevo.com/v3/contacts/import"
 
@@ -14,6 +16,8 @@ brevo_headers = {
     "content-type": "application/json",
     "api-key": os.environ["BREVO_API_KEY"]
 }
+
+error_counter = 0
 
 with psycopg.connect(conninfo = os.environ["PG_URL"]) as conn:
     with conn.cursor() as cur:
@@ -89,17 +93,27 @@ USER_LAST_LOGIN_INDEX = 4
 def normalize_date(value: date|None) -> str|None:
     return value.strftime('%Y-%m-%d') if value is not None else value
 
-for user in users:
-    user = list(user)
-    email = user.pop(EMAIL_ATTR_INDEX)
-    user[USER_FIRST_LOGIN_INDEX] = normalize_date(user[USER_FIRST_LOGIN_INDEX])
-    user[USER_LAST_LOGIN_INDEX] = normalize_date(user[USER_LAST_LOGIN_INDEX])
-    brevo_payload["jsonBody"].append(
-        {
-            "email": email,
-            "attributes" : dict(zip(brevo_attributes, user))
-        }
-    )
+def prepare_payload(users):
+    for user in users:
+        user = list(user)
+        email = user.pop(EMAIL_ATTR_INDEX)
+        user[USER_FIRST_LOGIN_INDEX] = normalize_date(user[USER_FIRST_LOGIN_INDEX])
+        user[USER_LAST_LOGIN_INDEX] = normalize_date(user[USER_LAST_LOGIN_INDEX])
+        brevo_payload["jsonBody"].append(
+            {
+                "email": email,
+                "attributes" : dict(zip(brevo_attributes, user))
+            }
+        )
 
-response = requests.post(brevo_url, json=brevo_payload, headers=brevo_headers)
-print(response.text)
+chunked_users = [users[start:start+MAX_BATCH_SIZE] for start in range(0,len(users),MAX_BATCH_SIZE)]
+
+for chunk in chunked_users:
+    brevo_payload["jsonBody"] = []
+    prepare_payload(chunk)
+    response = requests.post(brevo_url, json=brevo_payload, headers=brevo_headers)
+    print(response.text)
+    if response.status_code != 200:
+        error_counter += 1
+
+sys.exit(error_counter)
