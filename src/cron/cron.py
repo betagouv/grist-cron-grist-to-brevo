@@ -113,7 +113,7 @@ for chunk in chunked_users:
     prepare_payload(chunk)
     response = requests.post(brevo_url, json=brevo_payload, headers=brevo_headers)
     print(response.text)
-    if response.status_code != 200:
+    if response.status_code not in [200, 202]:
         error_counter += 1
 
 sys.exit(error_counter)
