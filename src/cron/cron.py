@@ -86,8 +86,8 @@ def user_to_brevo_attributes(user):
         "PRENOM": user["prenom"],
         "NOM": user["nom"],
         "USER_DOMAIN": user["domain"],
-        ATTRS_PREFIX + "USER_FIRST_LOGIN": user["first_login"],
-        ATTRS_PREFIX + "USER_LAST_LOGIN": user["last_login"],
+        ATTRS_PREFIX + "USER_FIRST_LOGIN": normalize_date(user["first_login"]),
+        ATTRS_PREFIX + "USER_LAST_LOGIN": normalize_date(user["last_login"]),
         ATTRS_PREFIX
         + "USER_NB_DAYS_BETWEEN_FIRST_AND_LAST_LOGIN": user[
             "nb_days_between_first_and_last_login"
@@ -104,8 +104,6 @@ def normalize_date(value: date | None) -> str | None:
 
 def prepare_payload(users):
     for user in users:
-        user["first_login"] = normalize_date(user["first_login"])
-        user["last_login"] = normalize_date(user["last_login"])
         brevo_payload["jsonBody"].append(
             {"email": user["email"], "attributes": user_to_brevo_attributes(user)}
         )
