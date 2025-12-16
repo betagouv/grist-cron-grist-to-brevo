@@ -120,7 +120,10 @@ for chunk in chunked_users:
     prepare_payload(chunk)
     response = requests.post(brevo_url, json=brevo_payload, headers=brevo_headers)
     print(response.text)
-    if response.status_code not in [200, 202]:
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        print(f"Status code {response.status_code} sending chunk of users")
         error_counter += 1
 
-sys.exit(error_counter)
+sys.exit(1 if error_counter > 0 else 0)
