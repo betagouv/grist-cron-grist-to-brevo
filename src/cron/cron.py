@@ -110,6 +110,7 @@ def prepare_payload(users):
             {"email": user["email"], "attributes": user_to_brevo_attributes(user)}
         )
 
+
 sanitized_users = [user for user in users if user["type"] == "login"]
 chunked_users = [
     sanitized_users[start : start + MAX_BATCH_SIZE]
