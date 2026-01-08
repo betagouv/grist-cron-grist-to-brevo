@@ -41,6 +41,7 @@ with psycopg.connect(conninfo=os.environ["PG_URL"]) as conn:
                     users LEFT JOIN
                     logins ON users.id = logins.user_id LEFT JOIN
                     docs ON logins.user_id = docs.created_by
+                WHERE logins.display_email NOT LIKE '% %'
             )
             SELECT 
                 EMAIL,
