@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from datetime import date
 
@@ -9,6 +10,9 @@ import requests
 ID_BREVO_LIST = [int(id) for id in os.environ["ID_BREVO_LIST"].split(",")]
 ATTRS_PREFIX = os.environ.get("BREVO_ATTRS_PREFIX", "")
 MAX_BATCH_SIZE = 5000
+# https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address
+EMAIL_ADDRESS_REGEX = r"^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
+email_address_regex = re.compile(EMAIL_ADDRESS_REGEX)
 
 brevo_url = "https://api.brevo.com/v3/contacts/import"
 
@@ -41,7 +45,6 @@ with psycopg.connect(conninfo=os.environ["PG_URL"]) as conn:
                     users LEFT JOIN
                     logins ON users.id = logins.user_id LEFT JOIN
                     docs ON logins.user_id = docs.created_by
-                WHERE logins.display_email NOT LIKE '% %'
             )
             SELECT 
                 EMAIL,
@@ -105,6 +108,9 @@ def normalize_date(value: date | None) -> str | None:
 
 def prepare_payload(users):
     for user in users:
+        if not email_address_regex.match(user["email"]):
+            print(f"Invalid email: {user['email']}")
+            continue
         brevo_payload["jsonBody"].append(
             {"email": user["email"], "attributes": user_to_brevo_attributes(user)}
         )
